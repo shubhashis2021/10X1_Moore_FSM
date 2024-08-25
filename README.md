@@ -54,12 +54,15 @@ The Moore state machine consists of multiple states, each representing a step in
 To ensure non-overlapping detection, the state machine returns to the IDLE state after detecting the sequence, preventing immediate re-detection until a fresh sequence starts.
 
 <b>Output Logic:</b>
-The output is asserted high only when the machine reaches the final state (S10X1). Since this is a Moore machine, the output remains stable throughout the current state until the next state transition occurs.
+The output is asserted high only when the machine reaches the final state (S10X1). Since this is a Moore machine, the output remains stable throughout the current state until the next state transition occurs.The sequence used For testing the FSM is <b>1111101101001000</b>
 
-# Verilog Implementation
+<img width="1439" alt="Screenshot 2024-08-26 at 12 27 18 AM" src="https://github.com/user-attachments/assets/40f85d9d-62cb-411f-9a05-0592087f5f36">
+
+# Verilog Implementation with testbench code
 The design is fully implemented in Verilog, with a clear separation between the state machine logic and the sequence detection logic. Each state is encoded, and transitions are defined based on the current state and input.
 
 ```verilog
+
 // Sequence Detector using Moore State Machine
 module state_machine_10x1 (
   input clk,        // Clock signal
@@ -124,6 +127,52 @@ module state_machine_10x1 (
     endcase
   end
 endmodule
+
+
+--------------------------------------------------------------------TESTBENCH CODE----------------------------------------------------------------------
+
+//verilog testbench code
+module tb();
+  reg clk,reset,x;
+  wire z;
+  state_machine_10x1 FSM (clk,reset,x,z);
+  
+  
+  initial begin
+    $dumpfile("dump.vcd");
+    $dumpvars;
+  end
+  
+  initial begin
+    reset=1'b1;
+    clk=1'b0;
+    #15 reset=1'b0;
+  end
+  
+  always #5 clk=~clk;
+  
+  initial begin
+    #12 x=0;#10 x=0;#10 x=0;#10 x=0;
+    #10 x=1; #10 x=0; #10 x=1; #10 x=1;
+    #10 x=0; #10 x=1; #10 x=0; #10 x=0;
+    #10 x=1; #10 x=0; #10 x=0; #10 x=0;
+    
+    #10 $finish;
+  end
+  
+  
+  
+  endmodule
+
+
+OUTPUT
+The sequence used For testing the FSM is 1111101101001000
+
+
+
+
+
+
 
 
 
