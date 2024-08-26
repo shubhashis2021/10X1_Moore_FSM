@@ -167,8 +167,7 @@ module tb();
 ```
 
 
-OUTPUT
-The sequence used For testing the FSM is 1111101101001000
+
 
 
 
