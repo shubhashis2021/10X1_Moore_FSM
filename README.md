@@ -54,9 +54,9 @@ The Moore state machine consists of multiple states, each representing a step in
 To ensure non-overlapping detection, the state machine returns to the IDLE state after detecting the sequence, preventing immediate re-detection until a fresh sequence starts.
 
 <b>Output Logic:</b>
-The output is asserted high only when the machine reaches the final state (S10X1). Since this is a Moore machine, the output remains stable throughout the current state until the next state transition occurs.The sequence used For testing the FSM is <b>1111101101001000</b>
+The output is asserted high only when the machine reaches the final state (S10X1). Since this is a Moore machine, the output remains stable throughout the current state until the next state transition occurs.
 
-<img width="1439" alt="Screenshot 2024-08-26 at 12 27 18 AM" src="https://github.com/user-attachments/assets/40f85d9d-62cb-411f-9a05-0592087f5f36">
+
 
 # Verilog Implementation with testbench code
 The design is fully implemented in Verilog, with a clear separation between the state machine logic and the sequence detection logic. Each state is encoded, and transitions are defined based on the current state and input.
@@ -128,9 +128,32 @@ module state_machine_10x1 (
   end
 endmodule
 
+```
+# Testbench Code 
 
---------------------------------------------------------------------TESTBENCH CODE----------------------------------------------------------------------
+<b>Test Sequence</b>
 
+The test sequence applied in the testbench is 1111101101001000. This sequence was chosen because it covers multiple scenarios:
+
+	•	Initial Noise (11111): The sequence starts with several 1s, testing the machine’s ability to ignore irrelevant patterns.
+	•	Valid Sequence Detection (0110100): The sequence 0110100 contains a valid instance of 10X1, which should trigger the output.
+	•	Resetting to Initial State (1000): After detecting a sequence, the machine should reset to detect new valid patterns in subsequent inputs.
+<b> Expected Behavior</b>
+
+The expected behavior of the state machine when processing the test sequence is as follows:
+
+	1.	For the first few 1s: The machine remains in state s1, waiting for a 0 to move to the next state.
+	2.	Upon detecting 0: The machine transitions through the states until it detects a full match for 10X1.
+	3.	After the match is found: The output z should be high, and the state machine should reset to search for another non-overlapping occurrence.
+
+<b>Importance of Non-Overlapping Detection</b>
+
+This test sequence also ensures that overlapping sequences do not trigger incorrect output. For instance, after detecting 10X1, if another 1 follows immediately, the machine should reset and not trigger the output again until a fresh sequence is detected.
+
+This section provides a clear explanation of how the testbench operates and the significance of the chosen test sequence in verifying the sequence detector’s functionality.
+ 
+```verilog
+ 
 //verilog testbench code
 module tb();
   reg clk,reset,x;
@@ -166,10 +189,24 @@ module tb();
 
 ```
 
+# Output Results
+Testbench Output Waveform
 
+In a waveform view, one would observe:
 
+	•	The output z being asserted high (switching from 0 to 1) only when the 10X1 sequence is detected.
+	•	The output remains low for all other parts of the sequence, confirming that the machine does not respond to irrelevant patterns.
+	•	After detecting the sequence, the output should return to low, showing that the state machine is correctly handling non-overlapping sequences.
 
+Key Points of the Output
 
+	•	Single-Cycle Assertion: The output is asserted for only one clock cycle, corresponding to the detection of the sequence.
+	•	Reset Behavior: After detecting 10X1, the output returns low, indicating that the state machine is ready to detect another instance of the sequence.
+	•	Edge Case Coverage: The test sequence includes edge cases, such as multiple 1s at the beginning and sequences that don’t match 10X1, ensuring robustness of the design.
+
+This output analysis provides insight into what you should expect when running the testbench, helping to verify that your sequence detector is working as intended.
+
+<img width="1700" alt="Screenshot 2024-08-26 at 12 27 18 AM" src="https://github.com/user-attachments/assets/40f85d9d-62cb-411f-9a05-0592087f5f36">
 
 
 
